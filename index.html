@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="id" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yozora Shelf</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Shippori+Mincho:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Tema Yozora Shelf: hitam, emas, kuning, dengan aksen merah & biru.
+      // Palet "gray" dan "indigo" bawaan Tailwind ditimpa, jadi semua kelas
+      // yang sudah ada otomatis ikut berganti warna.
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Figtree", "ui-sans-serif", "system-ui", "sans-serif"],
+              display: ["Shippori Mincho", "Georgia", "serif"],
+            },
+            colors: {
+              gray: {
+                50: "#f7f5ef",
+                100: "#ece8dd",
+                200: "#d8d3c4",
+                300: "#bcb6a5",
+                400: "#9b9484",
+                500: "#7a7466",
+                600: "#4b473f",
+                700: "#2a2a2e",
+                800: "#141417",
+                900: "#09090b",
+              },
+              indigo: {
+                50: "#fbf7e6",
+                100: "#f5ecc4",
+                200: "#ecdc91",
+                300: "#e3c964",
+                400: "#dbb944",
+                500: "#d4af37",
+                600: "#c29b27",
+                700: "#a8841c",
+                800: "#8a6b17",
+                900: "#6e5412",
+              },
+              vermilion: { 400: "#e5586b", 500: "#d7263d", 600: "#b81e33" },
+              night: { 400: "#6b8cf0", 500: "#3d63dd", 600: "#2f4fb8" },
+            },
+          },
+        },
+      };
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
