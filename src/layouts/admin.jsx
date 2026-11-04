@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { logout } from "../_services/auth";
 import Logo from "../components/logo";
 
 const ICONS = {
@@ -90,6 +91,12 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    setUserMenuOpen(false);
+    await logout();
+    navigate("/login", { replace: true });
+  };
   const closeSidebar = () => setSidebarOpen(false);
 
   // Tutup menu user saat klik di luar.
@@ -159,13 +166,13 @@ export default function AdminLayout() {
                 </div>
                 <ul className="py-1 text-gray-300">
                   <li>
-                    <Link
-                      to="/login"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="block px-4 py-2 text-sm hover:bg-gray-600 hover:text-white"
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-600 hover:text-white"
                     >
                       Sign out
-                    </Link>
+                    </button>
                   </li>
                 </ul>
               </div>

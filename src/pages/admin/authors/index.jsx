@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getAuthors } from "../../../_services/authors";
+import { deleteAuthor, getAuthors } from "../../../_services/authors";
+import ConfirmModal from "../../../components/confirm-modal";
 import { formatTanggal } from "../../../utils/format";
 
 export default function AdminAuthors() {
@@ -8,6 +9,10 @@ export default function AdminAuthors() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
+  const [target, setTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,6 +27,36 @@ export default function AdminAuthors() {
     };
     fetchData();
   }, []);
+
+  const closeModal = () => {
+    setTarget(null);
+    setDeleteError("");
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      await deleteAuthor(target.id);
+      setAuthors((prev) => prev.filter((item) => item.id !== target.id));
+      setNotice(`Author "${target.nama_author}" berhasil dihapus.`);
+      setTarget(null);
+    } catch (err) {
+      console.error("Gagal hapus author:", err);
+      const status = err.response?.status;
+      const serverMessage = err.response?.data?.message;
+      console.log("Response error dari server:", err.response?.data);
+      setDeleteError(
+        status === 404
+          ? "Data sudah tidak ada di server."
+          : serverMessage
+            ? `Gagal menghapus (${status}): ${serverMessage}`
+            : `Gagal menghapus (${status ?? "tanpa response"}). Cek tab Network untuk detailnya.`,
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const filtered = authors.filter((a) =>
     `${a.nama_author} ${a.negara ?? ""}`
@@ -62,6 +97,12 @@ export default function AdminAuthors() {
           />
         </div>
 
+        {notice && (
+          <p className="mx-4 mb-4 rounded-lg border border-night-500/40 bg-night-500/10 px-4 py-3 text-sm text-night-400" role="status">
+            {notice}
+          </p>
+        )}
+
         {error && (
           <p className="mx-4 mb-4 rounded-lg border border-vermilion-500/40 bg-vermilion-500/10 px-4 py-3 text-sm text-vermilion-400" role="alert">
             {error}
@@ -76,12 +117,13 @@ export default function AdminAuthors() {
                 <th scope="col" className="px-4 py-3">Nama author</th>
                 <th scope="col" className="px-4 py-3">Negara</th>
                 <th scope="col" className="px-4 py-3">Dibuat</th>
+                <th scope="col" className="px-4 py-3"><span className="sr-only">Aksi</span></th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center">Memuat data...</td>
+                  <td colSpan={5} className="px-4 py-8 text-center">Memuat data...</td>
                 </tr>
               ) : filtered.length > 0 ? (
                 filtered.map((author, i) => (
@@ -100,11 +142,31 @@ export default function AdminAuthors() {
                     </th>
                     <td className="px-4 py-3">{author.negara || "-"}</td>
                     <td className="whitespace-nowrap px-4 py-3">{formatTanggal(author.created_at)}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          to={`/admin/authors/${author.id}/edit`}
+                          className="font-medium text-indigo-400 hover:underline"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNotice("");
+                            setTarget(author);
+                          }}
+                          className="font-medium text-vermilion-400 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center">Data tidak ditemukan</td>
+                  <td colSpan={5} className="px-4 py-8 text-center">Data tidak ditemukan</td>
                 </tr>
               )}
             </tbody>
@@ -115,6 +177,16 @@ export default function AdminAuthors() {
           Total <span className="font-semibold text-gray-50">{filtered.length}</span> author
         </p>
       </div>
+
+      <ConfirmModal
+        open={!!target}
+        title="Hapus author?"
+        message={`Author "${target?.nama_author}" akan dihapus permanen dan tidak bisa dikembalikan.`}
+        loading={deleting}
+        error={deleteError}
+        onConfirm={handleDelete}
+        onCancel={closeModal}
+      />
     </section>
   );
 }
