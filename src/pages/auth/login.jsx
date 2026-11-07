@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { isLoggedIn, login } from "../../_services/auth";
 import Logo from "../../components/logo";
 
@@ -8,6 +8,7 @@ const inputClass =
 
 export default function Login() {
   const navigate = useNavigate();
+  const successMessage = useLocation().state?.message;
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -53,6 +54,12 @@ export default function Login() {
             <h1 className="text-xl font-bold tracking-tight text-gray-50 md:text-2xl">
               Masuk ke akun admin
             </h1>
+
+            {successMessage && !message && (
+              <p className="rounded-lg border border-night-500/40 bg-night-500/10 px-4 py-3 text-sm text-night-400" role="status">
+                {successMessage}
+              </p>
+            )}
 
             {message && (
               <p className="rounded-lg border border-vermilion-500/40 bg-vermilion-500/10 px-4 py-3 text-sm text-vermilion-400" role="alert">

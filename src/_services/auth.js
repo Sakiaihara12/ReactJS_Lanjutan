@@ -23,6 +23,11 @@ export const login = async (payload) => {
   return data
 }
 
+export const register = async (payload) => {
+  const { data } = await API.post("/register", payload)
+  return data
+}
+
 export const logout = async () => {
   try {
     await API.post("/logout")
