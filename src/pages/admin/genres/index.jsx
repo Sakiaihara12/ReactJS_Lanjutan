@@ -177,6 +177,7 @@ export default function AdminGenres() {
         title="Hapus genre?"
         message={`Genre "${target?.nama_genre}" akan dihapus permanen dan tidak bisa dikembalikan.`}
         loading={deleting}
+        loadingLabel="Menghapus..."
         error={deleteError}
         onConfirm={handleDelete}
         onCancel={closeModal}

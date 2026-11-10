@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { logout } from "../_services/auth";
+import { Link, NavLink, Outlet } from "react-router-dom";
+import { useAuth } from "../hooks/use-auth";
 import Logo from "../components/logo";
 
 const ICONS = {
@@ -21,14 +21,14 @@ const ICONS = {
 // Menu tanpa `to` belum punya halaman: kliknya tetap di tempat.
 const MENU_MAIN = [
   { label: "Dashboard", to: "/admin", end: true, icon: "chart" },
-  { label: "Users", icon: "list" },
+  { label: "Users", to: "/admin/users", icon: "list" },
   { label: "Authors", to: "/admin/authors", icon: "list" },
   { label: "Genres", to: "/admin/genres", icon: "list" },
 ];
 
 const MENU_SECOND = [
   { label: "Books", to: "/admin/books", icon: "list" },
-  { label: "Transaction", icon: "bag" },
+  { label: "Transactions", to: "/admin/transactions", icon: "bag" },
   { label: "Help", icon: "help" },
 ];
 
@@ -91,11 +91,12 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
-  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const initial = (user?.name ?? "A").charAt(0).toUpperCase();
+  // Setelah sesi dihapus, ProtectedRoute otomatis mengarahkan ke /login.
   const handleLogout = async () => {
     setUserMenuOpen(false);
     await logout();
-    navigate("/login", { replace: true });
   };
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -142,6 +143,12 @@ export default function AdminLayout() {
             <Link to="/admin" className="mr-4 flex items-center">
               <Logo />
             </Link>
+            <Link
+              to="/"
+              className="hidden items-center gap-1.5 rounded-lg border border-gray-600 px-3 py-1.5 text-sm font-medium text-gray-200 hover:bg-gray-700 sm:inline-flex"
+            >
+              &larr; Ke beranda
+            </Link>
           </div>
 
           <div className="relative flex items-center" ref={userMenuRef}>
@@ -151,17 +158,17 @@ export default function AdminLayout() {
               aria-expanded={userMenuOpen}
               className="mx-3 flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500 text-sm font-bold text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-600 md:mr-0"
             >
-              <span className="sr-only">Buka menu user</span>A
+              <span className="sr-only">Buka menu user</span>{initial}
             </button>
 
             {userMenuOpen && (
               <div className="absolute right-0 top-full z-50 mt-3 w-56 divide-y divide-gray-600 rounded-xl bg-gray-700 shadow-lg ring-1 ring-black/30">
                 <div className="px-4 py-3">
                   <span className="block text-sm font-semibold text-white">
-                    Administrator
+                    {user?.name ?? "Administrator"}
                   </span>
                   <span className="block truncate text-sm text-gray-400">
-                    Yozora Shelf
+                    {user?.email ?? "Yozora Shelf"}
                   </span>
                 </div>
                 <ul className="py-1 text-gray-300">
@@ -212,6 +219,14 @@ export default function AdminLayout() {
               </li>
             ))}
           </ul>
+
+          <Link
+            to="/"
+            onClick={closeSidebar}
+            className="mt-5 flex items-center justify-center rounded-lg border border-gray-600 px-3 py-2 text-sm font-medium text-gray-200 hover:bg-gray-700"
+          >
+            &larr; Kembali ke beranda
+          </Link>
         </div>
       </aside>
 

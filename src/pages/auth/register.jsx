@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { isLoggedIn, register } from "../../_services/auth";
+import { Link, useNavigate } from "react-router-dom";
+import { register } from "../../_services/auth";
 import FormField from "../../components/form-field";
 import Logo from "../../components/logo";
 import PasswordStrength from "../../components/password-strength";
@@ -32,10 +32,6 @@ export default function Register() {
 
   // Error validasi dihitung ulang setiap nilai form berubah.
   const clientErrors = useMemo(() => validateRegister(values), [values]);
-
-  if (isLoggedIn()) {
-    return <Navigate to="/admin" replace />;
-  }
 
   // Tampilkan error hanya jika field sudah disentuh / form sudah dikirim.
   const errorOf = (field) =>
@@ -132,7 +128,10 @@ export default function Register() {
       {/* Form registrasi */}
       <section className="flex items-center justify-center px-6 py-10">
         <div className="w-full max-w-md">
-          <Link to="/" className="mb-8 inline-block lg:hidden" aria-label="Kembali ke beranda">
+          <Link to="/" className="mb-6 inline-block text-sm text-gray-400 hover:text-indigo-400">
+            &larr; Kembali ke beranda
+          </Link>
+          <Link to="/" className="mb-6 block lg:hidden" aria-label="Yozora Shelf">
             <Logo />
           </Link>
 

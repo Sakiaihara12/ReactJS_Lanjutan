@@ -1,148 +1,106 @@
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { getBook } from "../../../_services/books";
+import Alert from "../../../components/alert";
+import BookActions from "../../../components/book-actions";
+import BookCover from "../../../components/book-cover";
+import QuantityInput from "../../../components/quantity-input";
+import { formatRupiah } from "../../../utils/format";
+
 export default function ShowBook() {
+  const { id } = useParams();
+  const [book, setBook] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setBook(await getBook(id));
+      } catch (err) {
+        console.error("Gagal ambil buku:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [id]);
+
+  if (loading) return <p className="px-4 py-16 text-center text-gray-400">Memuat buku...</p>;
+
+  if (error || !book) {
+    return (
+      <section className="mx-auto max-w-screen-xl px-4 py-16">
+        <Alert>Buku tidak ditemukan atau gagal dimuat.</Alert>
+        <Link to="/books" className="mt-4 inline-block text-sm text-indigo-400 hover:underline">
+          &larr; Kembali ke koleksi buku
+        </Link>
+      </section>
+    );
+  }
+
+  const stock = Number(book.stock);
+  const details = [
+    ["Penulis", book.author?.nama_author],
+    ["Negara penulis", book.author?.negara],
+    ["Genre", book.genre?.nama_genre],
+    ["Tahun terbit", book.tahun_terbit],
+    ["Stok", stock > 0 ? `${stock} buku` : "Habis"],
+  ];
+
   return (
-    <>
-      <section className="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
-        <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
-            <div className="shrink-0 max-w-md lg:max-w-lg mx-auto">
-              <img
-                class="w-full dark:hidden"
-                src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg"
-                alt=""
-              />
-              <img
-                class="w-full hidden dark:block"
-                src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front-dark.svg"
-                alt=""
-              />
+    <section className="bg-gray-900 py-8 md:py-14">
+      <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+        <Link to="/books" className="text-sm text-gray-400 hover:text-indigo-400">
+          &larr; Kembali ke koleksi buku
+        </Link>
+
+        <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-14">
+          <div className="mx-auto w-full max-w-xs lg:max-w-none">
+            <BookCover book={book} />
+          </div>
+
+          <div>
+            <span className="rounded-full bg-night-500/15 px-2.5 py-0.5 text-xs font-medium text-night-400 ring-1 ring-night-500/30">
+              {book.genre?.nama_genre}
+            </span>
+            <h1 className="mt-3 font-display text-3xl font-bold leading-tight text-gray-50 md:text-4xl">
+              {book.judul_buku}
+            </h1>
+            <p className="mt-1 text-gray-400">oleh {book.author?.nama_author}</p>
+            <p className="mt-5 text-3xl font-extrabold text-indigo-400">{formatRupiah(book.harga)}</p>
+
+            {stock > 0 && (
+              <div className="mt-6 flex items-center gap-4">
+                <QuantityInput value={quantity} max={stock} onChange={setQuantity} />
+                <span className="text-sm text-gray-400">Total {formatRupiah(Number(book.harga) * quantity)}</span>
+              </div>
+            )}
+            <div className="mt-4 max-w-sm">
+              <BookActions book={book} quantity={quantity} />
             </div>
 
-            <div className="mt-6 sm:mt-8 lg:mt-0">
-              <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-                Apple iMac 24" All-In-One Computer, Apple M1, 8GB RAM, 256GB
-                SSD, Mac OS, Pink
-              </h1>
-              <div className="mt-4 sm:items-center sm:gap-4 sm:flex">
-                <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">
-                  $1,249.99
-                </p>
+            <hr className="my-8 border-gray-700" />
 
-                <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                  <div className="flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-4 h-4 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-medium leading-none text-gray-500 dark:text-gray-400">
-                    (5.0)
-                  </p>
-                  <a
-                    href="#"
-                    className="text-sm font-medium leading-none text-gray-900 underline hover:no-underline dark:text-white"
-                  >
-                    345 Reviews
-                  </a>
+            <h2 className="text-lg font-bold text-gray-50">Deskripsi</h2>
+            <p className="mt-2 whitespace-pre-line text-gray-300">
+              {book.deskripsi || "Belum ada deskripsi untuk buku ini."}
+            </p>
+
+            <h2 className="mb-2 mt-8 text-lg font-bold text-gray-50">Informasi buku</h2>
+            <dl className="divide-y divide-gray-700 rounded-lg bg-gray-800 px-4 ring-1 ring-gray-700/60">
+              {details.map(([label, value]) => (
+                <div key={label} className="flex justify-between gap-4 py-3 text-sm">
+                  <dt className="text-gray-400">{label}</dt>
+                  <dd className="font-medium text-gray-50">{value || "-"}</dd>
                 </div>
-              </div>
-
-              <div className="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
-                <a
-                  href="#"
-                  title=""
-                  class="text-white mt-4 sm:mt-0 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800 flex items-center justify-center"
-                  role="button"
-                >
-                  <svg
-                    class="w-5 h-5 -ms-2 me-2"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"
-                    />
-                  </svg>
-                  Add to cart
-                </a>
-              </div>
-
-              <hr className="my-6 md:my-8 border-gray-200 dark:border-gray-800" />
-
-              <p class="mb-6 text-gray-500 dark:text-gray-400">
-                Studio quality three mic array for crystal clear calls and voice
-                recordings. Six-speaker sound system for a remarkably robust and
-                high-quality audio experience. Up to 256GB of ultrafast SSD
-                storage.
-              </p>
-
-              <p class="text-gray-500 dark:text-gray-400">
-                Two Thunderbolt USB 4 ports and up to two USB 3 ports. Ultrafast
-                Wi-Fi 6 and Bluetooth 5.0 wireless. Color matched Magic Mouse
-                with Magic Keyboard or Magic Keyboard with Touch ID.
-              </p>
-            </div>
+              ))}
+            </dl>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

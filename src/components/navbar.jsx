@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useAuth } from "../hooks/use-auth";
 import Logo from "./logo";
+import NavbarAuth from "./navbar-auth";
 
 // `to` kosong = belum ada halamannya, jadi klik tidak pindah ke mana-mana.
 const LINKS = [
   { label: "Home", to: "/", end: true },
-  { label: "Buku Terlaris", to: "/books" },
+  { label: "Buku", to: "/books" },
   { label: "Blog" },
   { label: "Layanan" },
 ];
@@ -18,6 +20,9 @@ const linkActive = "border-indigo-500 text-indigo-400";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
+  // Riwayat pembelian hanya muncul setelah login.
+  const links = isAuthenticated ? [...LINKS, { label: "Riwayat", to: "/history" }] : LINKS;
 
   return (
     <header className="sticky top-0 z-40 border-b border-gray-700/60 bg-gray-900/85 backdrop-blur">
@@ -27,18 +32,7 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2 lg:order-2">
-          <Link
-            to="/login"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-200 hover:bg-gray-800 hover:text-white"
-          >
-            Masuk
-          </Link>
-          <Link
-            to="/register"
-            className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm shadow-indigo-500/20 hover:bg-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-800"
-          >
-            Bergabung
-          </Link>
+          <NavbarAuth />
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -70,7 +64,7 @@ export default function Navbar() {
           className={`${open ? "block" : "hidden"} w-full lg:order-1 lg:block lg:w-auto`}
         >
           <ul className="mt-4 flex flex-col font-medium lg:mt-0 lg:flex-row lg:space-x-8">
-            {LINKS.map((item) => (
+            {links.map((item) => (
               <li key={item.label}>
                 {item.to ? (
                   <NavLink

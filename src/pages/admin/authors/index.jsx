@@ -183,6 +183,7 @@ export default function AdminAuthors() {
         title="Hapus author?"
         message={`Author "${target?.nama_author}" akan dihapus permanen dan tidak bisa dikembalikan.`}
         loading={deleting}
+        loadingLabel="Menghapus..."
         error={deleteError}
         onConfirm={handleDelete}
         onCancel={closeModal}

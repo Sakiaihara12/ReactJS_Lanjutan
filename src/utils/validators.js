@@ -57,3 +57,43 @@ export const passwordStrength = (password) => {
   if (/\d/.test(password) && /[^A-Za-z0-9]/.test(password)) score += 1;
   return score;
 };
+
+// ---- Validasi form buku ----
+
+const toNumber = (v) => (v === "" || v === null || v === undefined ? NaN : Number(v));
+
+export const bookRules = {
+  judul_buku: (v) => {
+    const value = v.trim();
+    if (!value) return "Judul buku wajib diisi.";
+    if (value.length < 2) return "Judul buku minimal 2 karakter.";
+    return "";
+  },
+  genre_id: (v) => (v ? "" : "Pilih genre utama buku."),
+  author_id: (v) => (v ? "" : "Pilih penulis buku."),
+  tahun_terbit: (v) => {
+    const year = toNumber(v);
+    const max = new Date().getFullYear() + 1;
+    if (Number.isNaN(year)) return "Tahun terbit wajib diisi.";
+    if (!Number.isInteger(year) || year < 1000 || year > max) return `Tahun terbit harus antara 1000 dan ${max}.`;
+    return "";
+  },
+  harga: (v) => {
+    const price = toNumber(v);
+    if (Number.isNaN(price)) return "Harga wajib diisi.";
+    if (price <= 0) return "Harga harus lebih dari 0.";
+    return "";
+  },
+  stock: (v) => {
+    const stock = toNumber(v);
+    if (Number.isNaN(stock)) return "Stok wajib diisi.";
+    if (!Number.isInteger(stock) || stock < 0) return "Stok harus bilangan bulat 0 atau lebih.";
+    return "";
+  },
+};
+
+export const validateBook = (values) =>
+  Object.keys(bookRules).reduce((errors, field) => {
+    const message = bookRules[field](values[field]);
+    return message ? { ...errors, [field]: message } : errors;
+  }, {});

@@ -1,22 +1,18 @@
 import { useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { isLoggedIn, login } from "../../_services/auth";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../hooks/use-auth";
 import Logo from "../../components/logo";
 
 const inputClass =
   "block w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-sm text-gray-50 placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500";
 
 export default function Login() {
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const successMessage = useLocation().state?.message;
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
-
-  if (isLoggedIn()) {
-    return <Navigate to="/admin" replace />;
-  }
 
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -27,8 +23,8 @@ export default function Login() {
     setErrors({});
     setMessage("");
     try {
+      // Setelah sukses, GuestRoute otomatis mengarahkan sesuai role (admin / user).
       await login({ email: form.email.trim(), password: form.password });
-      navigate("/admin", { replace: true });
     } catch (err) {
       if (err.response?.status === 422) {
         setErrors(err.response.data.errors ?? {});
@@ -45,9 +41,14 @@ export default function Login() {
   return (
     <section className="bg-gray-900">
       <div className="mx-auto flex min-h-screen flex-col items-center justify-center px-6 py-8">
-        <Link to="/" className="mb-6">
-          <Logo size="lg" />
-        </Link>
+        <div className="mb-6 flex w-full flex-col items-center gap-4 sm:max-w-md">
+          <Link to="/" className="self-start text-sm text-gray-400 hover:text-indigo-400">
+            &larr; Kembali ke beranda
+          </Link>
+          <Link to="/" aria-label="Yozora Shelf">
+            <Logo size="lg" />
+          </Link>
+        </div>
 
         <div className="w-full rounded-lg bg-gray-800 shadow ring-1 ring-gray-700/60 sm:max-w-md">
           <div className="space-y-5 p-6 sm:p-8">
